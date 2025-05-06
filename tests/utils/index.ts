@@ -1,4 +1,5 @@
-import { clearDatabase } from './clearDatabase';
-import { runMigrations } from './runMigrations';
+import { clearDatabase } from './clear-database';
+import { getApiEndpoint } from './get-api-endpoint';
+import { runMigrations } from './run-migrations';
 
-export { clearDatabase, runMigrations };
+export { clearDatabase, runMigrations, getApiEndpoint };

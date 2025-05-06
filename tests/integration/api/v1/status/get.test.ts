@@ -1,4 +1,4 @@
-import { clearDatabase, runMigrations } from 'tests/utils';
+import { clearDatabase, getApiEndpoint, runMigrations } from 'tests/utils';
 
 describe('GET /api/v1/status', () => {
   beforeAll(async () => {
@@ -9,8 +9,10 @@ describe('GET /api/v1/status', () => {
     await clearDatabase().then(async () => await runMigrations());
   });
 
+  const apiEndpoint = getApiEndpoint();
+
   it('should GET to /api/v1/status should return 200', async () => {
-    const response = await fetch('http://localhost:3000/api/v1/status');
+    const response = await fetch(`${apiEndpoint}/api/v1/status`);
     expect(response.status).toBe(200);
 
     const body = await response.json();
@@ -33,7 +35,7 @@ describe('GET /api/v1/status', () => {
 
   it('should deal with query params', async () => {
     const result = await fetch(
-      'http://localhost:3000/api/v1/status?databaseName=local_db'
+      `${apiEndpoint}/api/v1/status?databaseName=local_db`
     );
 
     expect(result.status).toBe(200);
