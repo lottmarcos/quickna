@@ -7,9 +7,9 @@ import { Button } from 'src/frontend/components';
 
 const WaveDivider = styled(Stack)(() => ({
   width: '100%',
-  height: '100vh',
+  height: '150vh',
   backgroundImage: 'url(/assets/wave.svg)',
-  backgroundPosition: '50% 0%',
+  backgroundPosition: '0% 0%',
   backgroundSize: 'cover',
 }));
 
@@ -92,7 +92,7 @@ const HomeWeb = ({
             <Typography variant="body1" color="white">
               sessões de perguntas e respostas para eventos ao vivo.
             </Typography>
-            <Typography variant="body1" color="white" marginTop={2}>
+            <Typography variant="body1" color="white" marginTop={1}>
               Sem cadastros, sem barreiras.
             </Typography>
           </Stack>
