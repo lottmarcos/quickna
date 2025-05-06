@@ -49,7 +49,7 @@ const CreateRoomModal = ({
         >
           Crie uma sala
         </Typography>
-        <Stack spacing={1} paddingY={3}>
+        <Stack spacing={2} paddingY={3}>
           <Typography color={MAIN.BLUE}>Dê um nome para a sua sala.</Typography>
           <TextField
             variant="outlined"

@@ -34,7 +34,7 @@ const Index = () => {
       <CreateRoomModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onConfirm={() => window.alert(`nome da sala: ${room}`)}
+        onConfirm={(room) => window.alert(`nome da sala: ${room}`)}
       />
     </>
   );
