@@ -1,4 +1,5 @@
 import { Button } from './button';
+import { CreateRoomModal } from './create-room-modal';
 import { Loading } from './loading';
 
-export { Loading, Button };
+export { Loading, Button, CreateRoomModal };
