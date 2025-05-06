@@ -9,6 +9,7 @@ const WaveDivider = styled(Stack)(() => ({
   width: '100%',
   height: '100vh',
   backgroundImage: 'url(/assets/wave.svg)',
+  backgroundPosition: '50% 0%',
   backgroundSize: 'cover',
 }));
 
@@ -78,7 +79,6 @@ const HomeWeb = ({
       <WaveDivider>
         <Stack direction="row" justifyContent="space-between" width="100%">
           <Stack
-            spacing={2}
             width="100%"
             sx={{
               paddingY: '24px',
@@ -86,17 +86,17 @@ const HomeWeb = ({
               paddingRight: '24px',
             }}
           >
-            <Typography variant="body1" color="white">
+            <Typography variant="body1" color="white" whiteSpace="nowrap">
               Uma solução simples e ágil para criar
-              <br />
+            </Typography>
+            <Typography variant="body1" color="white">
               sessões de perguntas e respostas para eventos ao vivo.
             </Typography>
-            <Typography variant="body1" color="white">
-              Sem cadastros,
-              <br /> sem barreiras.
+            <Typography variant="body1" color="white" marginTop={2}>
+              Sem cadastros, sem barreiras.
             </Typography>
           </Stack>
-          <Stack width="100%" gap={2} sx={{ padding: '148px 60px 0 0' }}>
+          <Stack width="100%" gap={2} sx={{ padding: '148px 60px 0 48px' }}>
             <Typography color={MAIN.BLUE} fontWeight={600} variant="h6">
               Entrar em uma sala já existente?
             </Typography>
