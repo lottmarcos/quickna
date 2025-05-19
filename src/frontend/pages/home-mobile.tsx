@@ -8,7 +8,7 @@ import { Button } from 'src/frontend/components';
 const WaveDivider = styled(Stack)(() => ({
   width: '100%',
   minHeight: '120px',
-  height: '700px',
+  height: '100vw',
   backgroundImage: 'url(/assets/wave.svg)',
   backgroundSize: '100vw',
   backgroundPosition: '20% 0%',
@@ -74,11 +74,10 @@ const HomeMobile = ({
         </Typography>
       </Stack>
       <Stack justifyContent="space-between" width="100%">
-        <Stack spacing={4} width="100%" sx={{ padding: '0 24px' }}>
+        <Stack spacing={1} width="100%" sx={{ padding: '0 24px' }}>
           <Typography variant="body1" color="white">
-            Uma solução simples e ágil para criar sessões de
-            <br />
-            perguntas e respostas para eventos ao vivo.
+            Uma solução simples e ágil para criar sessões de perguntas e
+            respostas para eventos ao vivo.
           </Typography>
           <Typography variant="body1" color="white">
             Sem cadastros e sem barreiras.

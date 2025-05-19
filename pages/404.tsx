@@ -1,10 +1,12 @@
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 import { Stack, Typography } from '@mui/material';
 import { Button } from 'src/frontend/components';
 import { useIsMobileUser } from 'src/frontend/hooks';
 
 const Page404 = () => {
+  const router = useRouter();
   const isMobileUser = useIsMobileUser();
 
   return (
@@ -36,7 +38,7 @@ const Page404 = () => {
       />
       <Button
         title="Voltar para o início"
-        onClick={() => window.location.replace('/')}
+        onClick={() => router.push('/')}
         variant="blue"
         size={isMobileUser ? 'medium' : 'large'}
       />

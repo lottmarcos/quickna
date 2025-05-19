@@ -74,6 +74,7 @@ const CreateRoomModal = ({
             onClick={() => onConfirm(inputValue)}
             title="Confirmar criação"
             variant="pink"
+            disabled={!inputValue}
           />
         </Stack>
       </Paper>
