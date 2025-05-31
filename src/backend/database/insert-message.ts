@@ -29,4 +29,3 @@ const insertMessage = async (
 };
 
 export { insertMessage };
-export type { MessageData, SavedMessage };

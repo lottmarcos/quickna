@@ -6,9 +6,12 @@
   "type": "commonjs",
   "scripts": {
     "dev": "yarn services:up && next dev",
-    "services:up": "docker-compose -f src/integrations/compose.yaml up -d",
-    "services:down": "docker-compose -f src/integrations/compose.yaml down",
-    "services:stop": "docker-compose -f src/integrations/compose.yaml stop",
+    "services:up": "docker-compose -f src/integrations/compose.yaml up -d && yarn websocket:start",
+    "services:down": "yarn websocket:stop && docker-compose -f src/integrations/compose.yaml down",
+    "services:stop": "yarn websocket:stop && docker-compose -f src/integrations/compose.yaml stop",
+    "websocket:start": "ts-node -r tsconfig-paths/register --project tsconfig.server.json src/integrations/web-socket.ts &",
+    "websocket:stop": "pkill -f 'ts-node.*src/integrations/web-socket.ts' || true",
+    "websocket:dev": "ts-node -r tsconfig-paths/register --project tsconfig.server.json src/integrations/web-socket.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -37,7 +40,8 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "ts-node": "^10.9.2",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "ws": "^8.18.2"
   },
   "repository": "git@github.com:lottmarcos/quickna.git",
   "private": false,
@@ -50,6 +54,7 @@
     "@types/jest": "29.5.14",
     "@types/node": "22.6.1",
     "@types/react": "18.3.8",
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
     "eslint": "^9.23.0",
@@ -67,6 +72,7 @@
     "jest-environment-jsdom": "29.7.0",
     "prettier": "^3.5.3",
     "ts-jest": "29.2.5",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "5.6.2",
     "typescript-eslint": "^8.28.0"
   },
