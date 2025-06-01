@@ -2,7 +2,7 @@ import { insertMessage } from 'src/backend/database/insert-message';
 import { createWebSocketServer } from 'src/backend/services/web-socket';
 import { MessageData } from 'src/constants/types';
 import { query } from 'src/integrations/database';
-import { clearDatabase, runMigrations } from 'tests/utils';
+import { waitForAllServices } from 'tests/orchestrator';
 import { WebSocketServer } from 'ws';
 
 // Mock WebSocket for testing
@@ -103,15 +103,13 @@ describe('WebSocket Service', () => {
     // eslint-disable-next-line no-console
     console.log = jest.fn();
     console.error = jest.fn();
-    await clearDatabase();
-    await runMigrations();
+    await waitForAllServices();
   });
 
   afterAll(async () => {
     // eslint-disable-next-line no-console
     console.log = originalConsoleLog;
     console.error = originalConsoleError;
-    await clearDatabase();
   });
 
   beforeEach(async () => {

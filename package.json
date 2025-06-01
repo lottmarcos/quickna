@@ -5,7 +5,7 @@
   "main": "./",
   "type": "commonjs",
   "scripts": {
-    "dev": "yarn services:up && next dev",
+    "dev": "yarn services:up && yarn wait-for-postgres && yarn migration:up && next dev",
     "services:up": "docker-compose -f src/integrations/compose.yaml up -d && yarn websocket:start",
     "services:down": "yarn websocket:stop && docker-compose -f src/integrations/compose.yaml down",
     "services:stop": "yarn websocket:stop && docker-compose -f src/integrations/compose.yaml stop",
@@ -16,10 +16,11 @@
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "test": "jest --runInBand",
+    "test": "yarn services:up && concurrently -n next,jest --hide next -k -s command-jest \"next dev\" \"jest --runInBand --verbose\"",
     "test:watch": "jest --watchAll --runInBand",
     "migration:create": "node-pg-migrate -m src/integrations/migrations create",
-    "migration:up": "node-pg-migrate -m src/integrations/migrations --envPath .env.development up"
+    "migration:up": "node-pg-migrate -m src/integrations/migrations --envPath .env.development up",
+    "wait-for-postgres": "ts-node --project tsconfig.json -r dotenv/config src/integrations/scripts/wait-for-postgres.ts"
   },
   "author": "marcos lott <lott.marcos@gmail.com>",
   "license": "MIT",
@@ -32,6 +33,7 @@
     "@mui/system": "^6.4.8",
     "@mui/utils": "^6.4.8",
     "@types/pg": "8.11.10",
+    "async-retry": "^1.3.3",
     "dotenv": "16.4.4",
     "dotenv-expand": "11.0.6",
     "next": "15.2.4",
@@ -57,6 +59,7 @@
     "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
+    "concurrently": "^9.1.2",
     "eslint": "^9.23.0",
     "eslint-config-next": "^15.2.4",
     "eslint-config-prettier": "^10.1.1",

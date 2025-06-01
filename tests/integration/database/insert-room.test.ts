@@ -1,7 +1,7 @@
 import { insertRoom } from 'src/backend/database/insert-room';
 import { query } from 'src/integrations/database';
 import { generateRoomId } from 'src/utils';
-import { clearDatabase, runMigrations } from 'tests/utils';
+import { waitForAllServices } from 'tests/orchestrator';
 
 jest.mock('src/utils', () => ({
   generateRoomId: jest.fn(),
@@ -13,12 +13,7 @@ const mockGenerateRoomId = generateRoomId as jest.MockedFunction<
 
 describe('insertRoom', () => {
   beforeAll(async () => {
-    await clearDatabase();
-    await runMigrations();
-  });
-
-  afterAll(async () => {
-    await clearDatabase();
+    await waitForAllServices();
   });
 
   beforeEach(async () => {

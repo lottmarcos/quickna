@@ -1,13 +1,9 @@
-import { clearDatabase, getApiEndpoint, runMigrations } from 'tests/utils';
+import { waitForAllServices } from 'tests/orchestrator';
+import { getApiEndpoint } from 'tests/utils';
 
 describe('POST /api/v1/room', () => {
   beforeAll(async () => {
-    await clearDatabase();
-    await runMigrations();
-  });
-
-  afterAll(async () => {
-    await clearDatabase().then(async () => await runMigrations());
+    await waitForAllServices();
   });
 
   const apiEndpoint = getApiEndpoint();

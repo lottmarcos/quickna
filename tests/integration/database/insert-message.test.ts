@@ -1,16 +1,11 @@
 import { insertMessage } from 'src/backend/database/insert-message';
 import { MessageData } from 'src/constants/types';
 import { query } from 'src/integrations/database';
-import { clearDatabase, runMigrations } from 'tests/utils';
+import { waitForAllServices } from 'tests/orchestrator';
 
 describe('insertMessage', () => {
   beforeAll(async () => {
-    await clearDatabase();
-    await runMigrations();
-  });
-
-  afterAll(async () => {
-    await clearDatabase();
+    await waitForAllServices();
   });
 
   beforeEach(async () => {
