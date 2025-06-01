@@ -28,11 +28,9 @@ export type ClientConnection = {
   clientId: string;
 };
 
-// Store client connections by room
 const roomConnections = new Map<string, Set<ClientConnection>>();
 const clientConnections = new Map<WebSocket, ClientConnection>();
 
-// Helper function to create outgoing messages
 const createMessage = (
   type: OutgoingMessage['type'],
   data: Partial<OutgoingMessage> = {}
@@ -41,7 +39,6 @@ const createMessage = (
   ...data,
 });
 
-// Helper function to send message to a specific client
 const sendToClient = (
   connection: ClientConnection,
   message: OutgoingMessage
@@ -51,7 +48,6 @@ const sendToClient = (
   }
 };
 
-// Helper function to broadcast message to all clients in a room
 const broadcastToRoom = (
   roomId: string,
   message: OutgoingMessage,
@@ -66,7 +62,6 @@ const broadcastToRoom = (
   });
 };
 
-// Handle client joining a room
 const handleJoinRoom = async (
   connection: ClientConnection,
   roomId: string
@@ -85,10 +80,8 @@ const handleJoinRoom = async (
     }
     roomConnections.get(roomId)!.add(connection);
 
-    // Get existing messages for the room
     const messages = await getRoomMessages(roomId);
 
-    // Send room joined confirmation with existing messages
     sendToClient(
       connection,
       createMessage('room_joined', {
@@ -98,7 +91,7 @@ const handleJoinRoom = async (
     );
 
     // eslint-disable-next-line no-console
-    console.log(`Client ${connection.clientId} joined room ${roomId}`);
+    console.log(`✅ Client ${connection.clientId} joined room ${roomId}`);
   } catch (error) {
     console.error('Error joining room:', error);
     sendToClient(
@@ -110,7 +103,6 @@ const handleJoinRoom = async (
   }
 };
 
-// Handle client leaving a room
 const handleLeaveRoom = async (connection: ClientConnection): Promise<void> => {
   if (!connection.roomId) return;
 
@@ -128,10 +120,9 @@ const handleLeaveRoom = async (connection: ClientConnection): Promise<void> => {
   connection.roomId = null;
 
   // eslint-disable-next-line no-console
-  console.log(`Client ${connection.clientId} left room ${roomId}`);
+  console.log(`🚪 Client ${connection.clientId} left room ${roomId}`);
 };
 
-// Handle sending a message
 const handleSendMessage = async (
   connection: ClientConnection,
   content: string,
@@ -158,7 +149,6 @@ const handleSendMessage = async (
     // Save message to database
     const savedMessage: SavedMessage = await insertMessage(messageData);
 
-    // Broadcast message to all clients in the room
     broadcastToRoom(
       connection.roomId,
       createMessage('new_message', {
@@ -169,7 +159,7 @@ const handleSendMessage = async (
 
     // eslint-disable-next-line no-console
     console.log(
-      `Message sent in room ${connection.roomId} by ${author || 'anonymous'}`
+      `✉️ Message sent in room ${connection.roomId} by ${author || 'anonymous'}`
     );
   } catch (error) {
     console.error('Error sending message:', error);
@@ -182,7 +172,6 @@ const handleSendMessage = async (
   }
 };
 
-// Handle incoming WebSocket messages
 const handleMessage = async (
   connection: ClientConnection,
   data: string
@@ -230,7 +219,7 @@ const handleMessage = async (
         );
     }
   } catch (error) {
-    console.error('Error handling message:', error);
+    console.error('❌ Error handling message:', error);
     sendToClient(
       connection,
       createMessage('error', {
@@ -240,7 +229,6 @@ const handleMessage = async (
   }
 };
 
-// Handle client disconnection
 const handleDisconnection = async (
   connection: ClientConnection
 ): Promise<void> => {
@@ -249,10 +237,9 @@ const handleDisconnection = async (
   }
   clientConnections.delete(connection.ws);
   // eslint-disable-next-line no-console
-  console.log(`Client ${connection.clientId} disconnected`);
+  console.log(`🚪 Client ${connection.clientId} disconnected`);
 };
 
-// Create and configure WebSocket server
 const createWebSocketServer = (port: number = 8080): WebSocketServer => {
   const wss = new WebSocketServer({ port });
 
@@ -266,7 +253,6 @@ const createWebSocketServer = (port: number = 8080): WebSocketServer => {
 
     clientConnections.set(ws, connection);
 
-    // Send connection confirmation
     sendToClient(
       connection,
       createMessage('connection', {
@@ -275,29 +261,23 @@ const createWebSocketServer = (port: number = 8080): WebSocketServer => {
     );
 
     // eslint-disable-next-line no-console
-    console.log(`New client connected: ${clientId}`);
+    console.log(`✅ New client connected: ${clientId}`);
 
-    // Handle incoming messages
     ws.on('message', (data: Buffer) => {
       handleMessage(connection, data.toString());
     });
 
-    // Handle client disconnection
     ws.on('close', () => {
       handleDisconnection(connection);
     });
 
-    // Handle errors
     ws.on('error', (error) => {
-      console.error(`WebSocket error for client ${clientId}:`, error);
+      console.error(`❌ WebSocket error for client ${clientId}:`, error);
       handleDisconnection(connection);
     });
   });
 
-  // eslint-disable-next-line no-console
-  console.log(`WebSocket server started on port ${port}`);
   return wss;
 };
 
-// Export the main function to start the server
 export { createWebSocketServer };

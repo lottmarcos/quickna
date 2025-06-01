@@ -341,7 +341,7 @@ describe('WebSocket Service', () => {
 
       const response = mockWs.getLastSentMessage();
       expect(response.type).toBe('error');
-      expect(response.error).toBe('Not connected to unknown room');
+      expect(response.error).toBe('Not connected to any room');
     });
   });
 
