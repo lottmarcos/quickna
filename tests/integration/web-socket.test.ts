@@ -5,7 +5,6 @@ import { query } from 'src/integrations/database';
 import { waitForAllServices } from 'tests/orchestrator';
 import { WebSocketServer } from 'ws';
 
-// Mock WebSocket for testing
 class MockWebSocket {
   public readyState: number = 1;
   public OPEN: number = 1;
@@ -24,7 +23,7 @@ class MockWebSocket {
     this.listeners[event].push(listener);
   }
 
-  emit(event: string, ...args: any[]) {
+  emit(event: string, ...args: unknown[]) {
     if (this.listeners[event]) {
       this.listeners[event].forEach((listener) => listener(...args));
     }
@@ -49,7 +48,6 @@ class MockWebSocket {
   }
 }
 
-// Mock WebSocketServer
 class MockWebSocketServer {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   public listeners: { [key: string]: Function[] } = {};
@@ -66,7 +64,7 @@ class MockWebSocketServer {
     this.listeners[event].push(listener);
   }
 
-  emit(event: string, ...args: any[]) {
+  emit(event: string, ...args: unknown[]) {
     if (this.listeners[event]) {
       this.listeners[event].forEach((listener) => listener(...args));
     }
@@ -78,12 +76,11 @@ class MockWebSocketServer {
 
   simulateConnection(): MockWebSocket {
     const mockWs = new MockWebSocket();
-    this.emit('connection', mockWs as any);
+    this.emit('connection', mockWs as unknown);
     return mockWs;
   }
 }
 
-// Mock the ws module
 jest.mock('ws', () => ({
   WebSocketServer: jest
     .fn()
@@ -113,19 +110,16 @@ describe('WebSocket Service', () => {
   });
 
   beforeEach(async () => {
-    // Clear database
     await query({ text: 'DELETE FROM messages', values: [] });
     await query({ text: 'DELETE FROM rooms', values: [] });
 
-    // Create test room
     await query({
       text: 'INSERT INTO rooms (id, name) VALUES ($1, $2)',
       values: ['TEST1', 'Test Room'],
     });
 
-    // Create server
     server = createWebSocketServer(8080);
-    mockServer = server as any;
+    mockServer = server as never;
     jest.clearAllMocks();
   });
 
@@ -170,7 +164,6 @@ describe('WebSocket Service', () => {
 
       mockWs.emit('message', Buffer.from(JSON.stringify(joinMessage)));
 
-      // Wait for async operations
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const response = mockWs.getLastSentMessage();
@@ -180,7 +173,6 @@ describe('WebSocket Service', () => {
     });
 
     it('should return existing messages when joining room', async () => {
-      // Insert test messages
       const messageData: MessageData = {
         roomId: 'TEST1',
         content: 'Existing message',
@@ -225,7 +217,6 @@ describe('WebSocket Service', () => {
     it('should handle leave_room message', async () => {
       const mockWs = mockServer.simulateConnection();
 
-      // Join room first
       const joinMessage = {
         type: 'join_room',
         roomId: 'TEST1',
@@ -235,7 +226,6 @@ describe('WebSocket Service', () => {
 
       mockWs.clearSent();
 
-      // Leave room
       const leaveMessage = {
         type: 'leave_room',
       };
@@ -253,7 +243,6 @@ describe('WebSocket Service', () => {
       const mockWs1 = mockServer.simulateConnection();
       const mockWs2 = mockServer.simulateConnection();
 
-      // Both clients join the same room
       const joinMessage = {
         type: 'join_room',
         roomId: 'TEST1',
@@ -266,7 +255,6 @@ describe('WebSocket Service', () => {
       mockWs1.clearSent();
       mockWs2.clearSent();
 
-      // Send message from first client
       const sendMessage = {
         type: 'send_message',
         content: 'Hello everyone!',
@@ -290,7 +278,6 @@ describe('WebSocket Service', () => {
     it('should handle send_message without author', async () => {
       const mockWs = mockServer.simulateConnection();
 
-      // Join room
       const joinMessage = {
         type: 'join_room',
         roomId: 'TEST1',
@@ -300,7 +287,6 @@ describe('WebSocket Service', () => {
 
       mockWs.clearSent();
 
-      // Send message without author
       const sendMessage = {
         type: 'send_message',
         content: 'Anonymous message',
@@ -318,7 +304,6 @@ describe('WebSocket Service', () => {
     it('should handle send_message without content', async () => {
       const mockWs = mockServer.simulateConnection();
 
-      // Join room
       const joinMessage = {
         type: 'join_room',
         roomId: 'TEST1',
@@ -328,7 +313,6 @@ describe('WebSocket Service', () => {
 
       mockWs.clearSent();
 
-      // Send message without content
       const sendMessage = {
         type: 'send_message',
         author: 'User 1',
@@ -357,7 +341,7 @@ describe('WebSocket Service', () => {
 
       const response = mockWs.getLastSentMessage();
       expect(response.type).toBe('error');
-      expect(response.error).toBe('Not connected to any room');
+      expect(response.error).toBe('Not connected to unknown room');
     });
   });
 
@@ -475,7 +459,6 @@ describe('WebSocket Service', () => {
     it('should handle client disconnection', async () => {
       const mockWs = mockServer.simulateConnection();
 
-      // Join room
       const joinMessage = {
         type: 'join_room',
         roomId: 'TEST1',
@@ -483,7 +466,6 @@ describe('WebSocket Service', () => {
       mockWs.emit('message', Buffer.from(JSON.stringify(joinMessage)));
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      // Simulate disconnection
       mockWs.close();
       await new Promise((resolve) => setTimeout(resolve, 10));
       // eslint-disable-next-line no-console
@@ -537,7 +519,6 @@ describe('WebSocket Service', () => {
     it('should persist messages to database', async () => {
       const mockWs = mockServer.simulateConnection();
 
-      // Join room
       const joinMessage = {
         type: 'join_room',
         roomId: 'TEST1',
@@ -545,7 +526,6 @@ describe('WebSocket Service', () => {
       mockWs.emit('message', Buffer.from(JSON.stringify(joinMessage)));
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      // Send message
       const sendMessage = {
         type: 'send_message',
         content: 'Test message for database',
@@ -555,7 +535,6 @@ describe('WebSocket Service', () => {
       mockWs.emit('message', Buffer.from(JSON.stringify(sendMessage)));
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      // Check database
       const result = await query({
         text: 'SELECT * FROM messages WHERE room_id = $1',
         values: ['TEST1'],
@@ -569,7 +548,6 @@ describe('WebSocket Service', () => {
     it('should return saved message with correct ID in broadcast', async () => {
       const mockWs = mockServer.simulateConnection();
 
-      // Join room
       mockWs.emit(
         'message',
         Buffer.from(
@@ -583,7 +561,6 @@ describe('WebSocket Service', () => {
 
       mockWs.clearSent();
 
-      // Send message
       mockWs.emit(
         'message',
         Buffer.from(
