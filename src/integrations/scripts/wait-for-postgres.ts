@@ -17,5 +17,5 @@ const checkPostgres = async () => {
   );
 };
 
-console.log('\n⏳ Aguardando Postgres aceitar conexões');
+console.log('\n⏳ Aguardando Postgres aceitar conexões...');
 checkPostgres();
