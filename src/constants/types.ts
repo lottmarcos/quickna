@@ -17,3 +17,11 @@ export type SavedMessage = {
   author: string | null;
   createdAt: Date;
 };
+export type SocketMessage = {
+  type: 'room_joined' | 'room_left' | 'new_message' | 'error' | 'connection';
+  roomId?: string;
+  messages?: SavedMessage[];
+  message?: SavedMessage;
+  error?: string;
+  data?: { clientId: string };
+};
