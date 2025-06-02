@@ -17,7 +17,6 @@ describe('insertRoom', () => {
   });
 
   beforeEach(async () => {
-    // Clear rooms table before each test
     await query({ text: 'DELETE FROM rooms', values: [] });
     jest.clearAllMocks();
   });

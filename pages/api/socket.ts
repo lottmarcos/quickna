@@ -40,7 +40,10 @@ const sendToClient = (
     [key: string]: unknown;
   }
 ): void => {
-  io.to(socketId).emit(message.type, message);
+  const socket = io.sockets.sockets.get(socketId);
+  if (socket) {
+    socket.emit(message.type, message);
+  }
 };
 
 const handleJoinRoom = async (
@@ -190,9 +193,28 @@ export default function SocketHandler(
   req: NextApiRequest,
   res: NextApiResponseServerIO
 ) {
-  if (res.socket.server.io) {
-    console.log('Socket.IO server already running');
-  } else {
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader(
+    'Access-Control-Allow-Origin',
+    process.env.NODE_ENV === 'production'
+      ? 'https://www.quickna.com.br'
+      : 'http://localhost:3000'
+  );
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET,OPTIONS,PATCH,DELETE,POST,PUT'
+  );
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  if (!res.socket.server.io) {
     console.log('Socket.IO server initializing...');
 
     const io = new SocketIOServer(res.socket.server, {
@@ -201,17 +223,23 @@ export default function SocketHandler(
       cors: {
         origin:
           process.env.NODE_ENV === 'production'
-            ? [
-                process.env.NEXTAUTH_URL,
-                process.env.VERCEL_URL,
-                process.env.NEXT_PUBLIC_VERCEL_URL,
-              ].filter(Boolean)
-            : 'http://localhost:3000',
+            ? ['https://www.quickna.com.br', 'https://quickna.com.br']
+            : ['http://localhost:3000'],
         methods: ['GET', 'POST'],
+        credentials: true,
       },
+      transports: ['polling'],
+      allowEIO3: true,
+      pingTimeout: 20000,
+      pingInterval: 25000,
+      upgradeTimeout: 10000,
+      maxHttpBufferSize: 1e6,
+      allowRequest: (req, callback) => {
+        console.log('Socket.IO allowRequest from:', req.headers.origin);
+        callback(null, true);
+      },
+      serveClient: false,
     });
-
-    res.socket.server.io = io;
 
     io.on('connection', (socket) => {
       const clientId = uuidv4();
@@ -261,18 +289,27 @@ export default function SocketHandler(
         }
       );
 
-      socket.on('disconnect', async () => {
+      socket.on('disconnect', async (reason) => {
+        console.log(`Client ${clientId} disconnected: ${reason}`);
         await handleDisconnection(io, socketId, clientId);
       });
 
       socket.on('error', (error) => {
         console.error(`❌ Socket error for client ${clientId}:`, error);
-        handleDisconnection(io, socketId, clientId);
       });
     });
 
     console.log('✅ Socket.IO server initialized');
+  } else {
+    console.log('Socket.IO server already running');
   }
 
-  res.end();
+  res.status(200).end();
 }
+
+export const config = {
+  api: {
+    bodyParser: false,
+    externalResolver: true,
+  },
+};

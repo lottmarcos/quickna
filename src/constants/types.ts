@@ -10,6 +10,12 @@ export type MessageData = {
   createdAt: Date;
 };
 
+export type Room = {
+  id: string;
+  name: string;
+  created_at?: Date;
+};
+
 export type SavedMessage = {
   id: number;
   roomId: string;

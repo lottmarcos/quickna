@@ -40,6 +40,23 @@ const Index = () => {
       });
   };
 
+  const onEnter = () => {
+    http
+      .get(`api/v1/room?room=${room}`)
+      .then((response) => {
+        if (response.success && response.room) {
+          return router.push(`/room/${response.room.id}`);
+        } else {
+          setIsToastOpen(true);
+          setMessage('Sala não encontrada.');
+        }
+      })
+      .catch(() => {
+        setIsToastOpen(true);
+        setMessage('Erro ao entrar na sala.');
+      });
+  };
+
   return (
     <>
       {isMobile ? (
@@ -48,6 +65,7 @@ const Index = () => {
           isEnterButtonDisabled={isEnterButtonDisabled}
           onInputChange={setRoom}
           onCreateRoom={openModal}
+          onEnter={onEnter}
         />
       ) : (
         <HomeWeb
@@ -55,6 +73,7 @@ const Index = () => {
           isEnterButtonDisabled={isEnterButtonDisabled}
           onInputChange={setRoom}
           onCreateRoom={openModal}
+          onEnter={onEnter}
         />
       )}
       <CreateRoomModal

@@ -34,14 +34,12 @@ const useWebSocket = (): UseSocketReturn => {
 
     setSocket(socketInstance);
 
-    // Connection established
     socketInstance.on('connect', () => {
       console.log('Connected to server');
       setIsConnected(true);
       setError(null);
     });
 
-    // Handle initial connection response with client ID
     socketInstance.on('connection', (data: SocketMessage) => {
       if (data.data?.clientId) {
         setClientId(data.data.clientId);
@@ -49,7 +47,6 @@ const useWebSocket = (): UseSocketReturn => {
       }
     });
 
-    // Handle successful room join
     socketInstance.on('room_joined', (data: SocketMessage) => {
       console.log('Joined room:', data.roomId);
       setIsInRoom(true);
@@ -58,7 +55,6 @@ const useWebSocket = (): UseSocketReturn => {
       setError(null);
     });
 
-    // Handle room leave
     socketInstance.on('room_left', (data: SocketMessage) => {
       console.log('Left room:', data.roomId);
       setIsInRoom(false);
@@ -67,7 +63,6 @@ const useWebSocket = (): UseSocketReturn => {
       setError(null);
     });
 
-    // Handle new messages
     socketInstance.on('new_message', (data: SocketMessage) => {
       if (data.message) {
         console.log('New message received:', data.message);
@@ -75,13 +70,11 @@ const useWebSocket = (): UseSocketReturn => {
       }
     });
 
-    // Handle errors
     socketInstance.on('error', (data: SocketMessage) => {
       console.error('Socket error:', data.error);
       setError(data.error || 'Unknown error occurred');
     });
 
-    // Handle disconnection
     socketInstance.on('disconnect', () => {
       console.log('Disconnected from server');
       setIsConnected(false);

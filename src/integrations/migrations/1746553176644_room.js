@@ -3,7 +3,6 @@
 exports.shorthands = undefined;
 
 exports.up = (pgm) => {
-  // Criar a tabela de salas (rooms)
   pgm.createTable('rooms', {
     id: {
       type: 'varchar(5)',
@@ -23,7 +22,6 @@ exports.up = (pgm) => {
     },
   });
 
-  // Criar a tabela de mensagens (messages)
   pgm.createTable('messages', {
     id: {
       type: 'uuid',
@@ -55,7 +53,6 @@ exports.up = (pgm) => {
     },
   });
 
-  // Criar índice para melhorar a performance de consultas na tabela messages
   pgm.createIndex('messages', 'room_id');
 };
 

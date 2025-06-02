@@ -3,11 +3,9 @@
 exports.shorthands = undefined;
 
 exports.up = pgm => {
-  // Drop the existing messages table since it has wrong structure
   pgm.dropIndex('messages', 'room_id');
   pgm.dropTable('messages');
 
-  // Recreate messages table with correct structure for insertMessage/getRoomMessages
   pgm.createTable('messages', {
     id: {
       type: 'serial',
@@ -39,22 +37,18 @@ exports.up = pgm => {
     },
   });
 
-  // Create indexes for better query performance
   pgm.createIndex('messages', 'room_id');
   pgm.createIndex('messages', 'created_at');
-  pgm.createIndex('messages', ['room_id', 'created_at']); // Composite index for room messages ordered by time
+  pgm.createIndex('messages', ['room_id', 'created_at']);
 };
 
 exports.down = pgm => {
-  // Drop indexes first
   pgm.dropIndex('messages', ['room_id', 'created_at']);
   pgm.dropIndex('messages', 'created_at');
   pgm.dropIndex('messages', 'room_id');
 
-  // Drop the new table
   pgm.dropTable('messages');
 
-  // Recreate the old messages table structure
   pgm.createTable('messages', {
     id: {
       type: 'uuid',

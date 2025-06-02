@@ -8,12 +8,10 @@ import { waitForAllServices } from 'tests/orchestrator';
 import { clearDatabase } from 'tests/utils';
 import { v4 as uuidv4 } from 'uuid';
 
-// Only mock uuid and Socket.IO, but use real database
 jest.mock('uuid');
 
 const mockUuidv4 = uuidv4 as jest.MockedFunction<typeof uuidv4>;
 
-// Mock Socket.IO with more detailed tracking
 const mockEmit = jest.fn();
 const mockJoin = jest.fn();
 const mockLeave = jest.fn();
@@ -39,7 +37,6 @@ const mockIo = {
   },
 };
 
-// Mock server constructor
 jest.mock('socket.io', () => ({
   Server: jest.fn().mockImplementation(() => mockIo),
 }));
@@ -51,20 +48,16 @@ describe('/api/socket - Integration Tests', () => {
   let originalEnv: NodeJS.ProcessEnv;
 
   beforeAll(async () => {
-    // Store original environment and wait for services
     await waitForAllServices();
     originalEnv = { ...process.env };
   });
 
   beforeEach(async () => {
-    // Clear database before each test
     await clearDatabase();
     jest.clearAllMocks();
 
-    // Reset environment variables
     process.env = { ...originalEnv };
 
-    // Setup mock server
     mockServer = {
       io: undefined,
     } as unknown as NetServer;
@@ -85,7 +78,6 @@ describe('/api/socket - Integration Tests', () => {
     // @ts-ignore
     mockUuidv4.mockReturnValue('client-123');
 
-    // Clear all mock calls
     mockEmit.mockClear();
     mockJoin.mockClear();
     mockLeave.mockClear();
@@ -95,7 +87,6 @@ describe('/api/socket - Integration Tests', () => {
   });
 
   afterAll(() => {
-    // Restore original environment
     process.env = originalEnv;
   });
 
@@ -113,7 +104,6 @@ describe('/api/socket - Integration Tests', () => {
     it('should not reinitialize Socket.IO server if already exists', () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-      // Set existing io server
       res.socket.server.io = mockIo;
 
       SocketHandler(req, res);
@@ -131,7 +121,6 @@ describe('/api/socket - Integration Tests', () => {
     beforeEach(() => {
       SocketHandler(req, res);
 
-      // Get the connection handler
       const onCalls = (mockIo.on as jest.Mock).mock.calls;
       const connectionCall = onCalls.find((call) => call[0] === 'connection');
       connectionHandler = connectionCall[1];
@@ -189,7 +178,6 @@ describe('/api/socket - Integration Tests', () => {
 
       connectionHandler(mockSocket);
 
-      // Get the join_room handler
       const onCalls = (mockSocket.on as jest.Mock).mock.calls;
       const joinRoomCall = onCalls.find((call) => call[0] === 'join_room');
       joinRoomHandler = joinRoomCall[1];
@@ -240,7 +228,6 @@ describe('/api/socket - Integration Tests', () => {
 
       connectionHandler(mockSocket);
 
-      // Get handlers
       const onCalls = (mockSocket.on as jest.Mock).mock.calls;
       joinRoomHandler = onCalls.find((call) => call[0] === 'join_room')[1];
       sendMessageHandler = onCalls.find(
@@ -252,21 +239,17 @@ describe('/api/socket - Integration Tests', () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
-      // Join a room first
       await joinRoomHandler({ roomId: 'test-room' });
 
-      // Clear mocks to focus on send message
       mockTo.mockClear();
       mockEmit.mockClear();
       consoleSpy.mockClear();
 
-      // Send a message
       await sendMessageHandler({
         content: 'Test message content',
         author: 'Test User',
       });
 
-      // Verify the message was sent successfully (check for new_message or error)
       const emitCalls = mockEmit.mock.calls;
       const hasError = emitCalls.some((call) => call[0] === 'error');
 
@@ -276,7 +259,6 @@ describe('/api/socket - Integration Tests', () => {
           error: 'Failed to send message',
         });
       } else {
-        // If successful, expect the new_message event
         expect(mockTo).toHaveBeenCalledWith('socket-123');
         expect(mockEmit).toHaveBeenCalledWith('new_message', {
           type: 'new_message',
@@ -303,15 +285,12 @@ describe('/api/socket - Integration Tests', () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
-      // Join a room first
       await joinRoomHandler({ roomId: 'test-room' });
 
-      // Clear mocks
       mockTo.mockClear();
       mockEmit.mockClear();
       consoleSpy.mockClear();
 
-      // Send anonymous message
       await sendMessageHandler({
         content: 'Anonymous message',
       });
@@ -393,12 +372,10 @@ describe('/api/socket - Integration Tests', () => {
     it('should retrieve existing messages when joining a room with history', async () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-      // First, join room and send some messages
       await joinRoomHandler({ roomId: 'test-room-with-history' });
 
       let messagesSent = 0;
 
-      // Send first message
       mockEmit.mockClear();
       await sendMessageHandler({
         content: 'First message',
@@ -409,7 +386,6 @@ describe('/api/socket - Integration Tests', () => {
         messagesSent++;
       }
 
-      // Send second message
       mockEmit.mockClear();
       await sendMessageHandler({
         content: 'Second message',
@@ -420,26 +396,21 @@ describe('/api/socket - Integration Tests', () => {
         messagesSent++;
       }
 
-      // Only proceed with persistence test if messages were successfully sent
       if (messagesSent === 0) {
         consoleSpy.mockRestore();
         return;
       }
 
-      // Wait for database operations to complete
       await new Promise((resolve) => setTimeout(resolve, 200));
 
-      // Create a completely new socket handler setup for the second client
       const newReq = { ...req };
       const newRes = { ...res, socket: { server: { io: undefined } } };
 
-      // Setup new handlers
       SocketHandler(newReq, newRes);
       const newConnectionHandler = (mockIo.on as jest.Mock).mock.calls.find(
         (call) => call[0] === 'connection'
       )[1];
 
-      // Create second client
       // @ts-ignore
       mockUuidv4.mockReturnValue('client-456');
       const mockSocket2 = {
@@ -453,16 +424,13 @@ describe('/api/socket - Integration Tests', () => {
       mockSockets.set('socket-456', mockSocket2);
       newConnectionHandler(mockSocket2);
 
-      // Get join handler for second client
       const newOnCalls = (mockSocket2.on as jest.Mock).mock.calls;
       const newJoinRoomHandler = newOnCalls.find(
         (call) => call[0] === 'join_room'
       )[1];
 
-      // Join the same room with the new client
       await newJoinRoomHandler({ roomId: 'test-room-with-history' });
 
-      // Check if the second client received messages
       const socket2EmitCalls = (mockSocket2.emit as jest.Mock).mock.calls;
       const roomJoinedCall = socket2EmitCalls.find(
         (call) => call[0] === 'room_joined'
@@ -472,7 +440,6 @@ describe('/api/socket - Integration Tests', () => {
         const messages = roomJoinedCall[1].messages;
         expect(messages.length).toBeGreaterThan(0);
 
-        // Verify we got the expected messages (at least one of them)
         const hasFirstMessage = messages.some(
           (msg: any) =>
             msg.content === 'First message' && msg.author === 'User 1'
@@ -511,15 +478,12 @@ describe('/api/socket - Integration Tests', () => {
     it('should successfully leave a room', async () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-      // First join a room
       await joinRoomHandler({ roomId: 'test-room' });
 
-      // Clear mocks
       mockLeave.mockClear();
       mockSocket.emit.mockClear();
       consoleSpy.mockClear();
 
-      // Leave the room
       await leaveRoomHandler();
 
       expect(mockLeave).toHaveBeenCalledWith('test-room');
@@ -540,7 +504,6 @@ describe('/api/socket - Integration Tests', () => {
 
       await leaveRoomHandler();
 
-      // Should not call leave or emit room_left when not in a room
       expect(mockLeave).not.toHaveBeenCalled();
       expect(mockSocket.emit).not.toHaveBeenCalledWith(
         'room_left',
@@ -571,14 +534,11 @@ describe('/api/socket - Integration Tests', () => {
     it('should handle client disconnection and leave room', async () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-      // First join a room
       await joinRoomHandler({ roomId: 'test-room' });
 
-      // Clear mocks
       mockLeave.mockClear();
       consoleSpy.mockClear();
 
-      // Disconnect
       await disconnectHandler();
 
       expect(mockLeave).toHaveBeenCalledWith('test-room');

@@ -26,12 +26,10 @@ const RoomPage: React.FC = () => {
     sendMessage,
   } = useWebSocket();
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Join room when component mounts and socket is connected
   useEffect(() => {
     if (roomId && typeof roomId === 'string' && isConnected && !isInRoom) {
       console.log('Auto-joining room:', roomId);
@@ -39,7 +37,6 @@ const RoomPage: React.FC = () => {
     }
   }, [roomId, isConnected, isInRoom, joinRoom]);
 
-  // Handle page navigation
   const handleLeaveRoom = () => {
     leaveRoom();
     router.push('/');
