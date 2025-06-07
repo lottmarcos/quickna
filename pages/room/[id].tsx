@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { http } from 'src/frontend/api/http';
 import { useIsNextLoading, useWebSocket } from 'src/frontend/hooks';
@@ -10,7 +10,6 @@ const RoomPage: React.FC = () => {
   const { id: roomId } = router.query;
   const [roomName, setRoomName] = useState<string | null>(null);
   const isNextLoading = useIsNextLoading();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [hasJoinedRoom, setHasJoinedRoom] = useState(false);
   const [isValidatingRoom, setIsValidatingRoom] = useState(true);
 
@@ -43,10 +42,6 @@ const RoomPage: React.FC = () => {
   }, [roomId, router]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  useEffect(() => {
     if (
       roomId &&
       typeof roomId === 'string' &&
@@ -58,11 +53,14 @@ const RoomPage: React.FC = () => {
       joinRoom(roomId);
       setHasJoinedRoom(true);
     }
+
+    return () => leaveRoom();
   }, [
     roomId,
     isConnected,
     isInRoom,
     joinRoom,
+    leaveRoom,
     hasJoinedRoom,
     isValidatingRoom,
   ]);
@@ -72,10 +70,6 @@ const RoomPage: React.FC = () => {
       setHasJoinedRoom(false);
     }
   }, [isConnected]);
-
-  useEffect(() => {
-    return () => leaveRoom();
-  }, [leaveRoom]);
 
   return (
     <Room

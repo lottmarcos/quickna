@@ -78,6 +78,7 @@ const MessageInput = ({ onSendMessage }: MessageInputProps) => {
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
         marginTop: '16px',
         width: '100%',
+        justifySelf: 'end',
       })}
     >
       <MessageInputs
