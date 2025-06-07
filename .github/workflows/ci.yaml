@@ -44,12 +44,6 @@ jobs:
         run: |
           echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/quickna_test" > .env.development
 
-      - name: Wait for PostgreSQL
-        run: yarn wait-for-postgres
-
-      - name: Run migrations
-        run: yarn migration:up
-
       - name: Run linting
         run: yarn lint
 
