@@ -28,7 +28,7 @@ const Index = () => {
       .post('api/v1/room', { name })
       .then((response: CreateRoomSuccessResponse) => {
         if (response.success && response.id) {
-          return router.push(`/room/${response.id}?new=true`);
+          return router.push(`/room/${response.id}`);
         } else {
           setIsToastOpen(true);
           setMessage('Erro ao criar sala.');
