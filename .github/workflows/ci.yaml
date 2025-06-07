@@ -40,10 +40,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Create test environment file
-        run: |
-          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/quickna_test" > .env.development
-
       - name: Run linting
         run: yarn lint
 
