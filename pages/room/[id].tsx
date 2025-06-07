@@ -53,8 +53,6 @@ const RoomPage: React.FC = () => {
       joinRoom(roomId);
       setHasJoinedRoom(true);
     }
-
-    return () => leaveRoom();
   }, [
     roomId,
     isConnected,
@@ -70,6 +68,14 @@ const RoomPage: React.FC = () => {
       setHasJoinedRoom(false);
     }
   }, [isConnected]);
+
+  useEffect(() => {
+    return () => {
+      if (isConnected && isInRoom) {
+        leaveRoom();
+      }
+    };
+  }, []);
 
   return (
     <Room
