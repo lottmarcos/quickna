@@ -56,9 +56,9 @@ describe('POST /api/v1/room', () => {
     expect(data.error).toBe('Name is required and must be a string');
   });
 
-  it('should return 405 for non-POST methods', async () => {
+  it('should return 405 for PATCH methods', async () => {
     const response = await fetch(`${apiEndpoint}/api/v1/room`, {
-      method: 'GET',
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },

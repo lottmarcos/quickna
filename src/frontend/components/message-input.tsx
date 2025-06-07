@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
 
-interface MessageInputProps {
+import { ChatBubbleOutline, ChevronRight } from '@mui/icons-material';
+import { Drawer, Stack, TextField, Typography } from '@mui/material';
+import { MAIN } from 'src/constants/colors';
+
+import { useIsMobileUser } from '../hooks';
+
+import { Button } from './button';
+
+type MessageInputProps = {
   onSendMessage: (content: string, author: string | null) => void;
-  disabled?: boolean;
-  isInRoom?: boolean;
-}
+};
 
-const MessageInput = ({
-  onSendMessage,
-  disabled = false,
-  isInRoom = false,
-}: MessageInputProps) => {
-  const [message, setMessage] = useState('');
+const MessageInput = ({ onSendMessage }: MessageInputProps) => {
+  const isMobileUser = useIsMobileUser();
   const [author, setAuthor] = useState('');
+  const [message, setMessage] = useState('');
+  const [isExpanded, setIsExpanded] = useState(true);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!message.trim() || disabled || !isInRoom) return;
+  const handleSubmit = () => {
+    if (!message.trim()) return;
 
     onSendMessage(message.trim(), author.trim() || null);
     setMessage('');
@@ -26,46 +28,160 @@ const MessageInput = ({
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e);
+      handleSubmit();
     }
   };
 
+  const onAuthorChange = (author: string) => {
+    setAuthor(author);
+  };
+  const onMessageChange = (message: string) => {
+    setMessage(message);
+  };
+
+  if (isMobileUser) {
+    return (
+      <Drawer
+        open
+        anchor="bottom"
+        variant="permanent"
+        sx={{
+          '&& .MuiPaper-root': {
+            borderTopLeftRadius: '24px',
+            borderTopRightRadius: '24px',
+            width: '100%',
+            margin: '0 1px',
+            maxWidth: 'calc(100vw - 2px)',
+            border: `1px solid ${MAIN.BLUE}`,
+          },
+        }}
+      >
+        <MessageInputs
+          author={author}
+          message={message}
+          isExpanded={isExpanded}
+          handleSubmit={handleSubmit}
+          handleKeyPress={handleKeyPress}
+          onAuthorChange={onAuthorChange}
+          onMessageChange={onMessageChange}
+          toggleExpand={() => setIsExpanded((prev) => !prev)}
+        />
+      </Drawer>
+    );
+  }
+
   return (
-    <div className="border-t border-gray-200 p-4 bg-white">
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div>
-          <input
-            type="text"
-            placeholder="Your name (optional)"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            disabled={disabled || !isInRoom}
-          />
-        </div>
-        <div className="flex gap-2">
-          <textarea
-            placeholder={
-              isInRoom ? 'Type your message...' : 'Join a room to send messages'
-            }
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-            rows={2}
-            disabled={disabled || !isInRoom}
-          />
-          <button
-            type="submit"
-            disabled={disabled || !message.trim() || !isInRoom}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Send
-          </button>
-        </div>
-      </form>
-    </div>
+    <Stack
+      sx={(theme) => ({
+        backgroundColor: theme.palette.background.paper,
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        marginTop: '16px',
+        width: '100%',
+      })}
+    >
+      <MessageInputs
+        author={author}
+        message={message}
+        isExpanded={isExpanded}
+        handleSubmit={handleSubmit}
+        handleKeyPress={handleKeyPress}
+        onAuthorChange={onAuthorChange}
+        onMessageChange={onMessageChange}
+        toggleExpand={() => setIsExpanded((prev) => !prev)}
+      />
+    </Stack>
   );
 };
+
+type MessageInputsProps = {
+  author: string;
+  message: string;
+  isExpanded: boolean;
+  toggleExpand: () => void;
+  handleSubmit: () => void;
+  handleKeyPress: (e: React.KeyboardEvent) => void;
+  onAuthorChange: (author: string) => void;
+  onMessageChange: (message: string) => void;
+};
+
+const MessageInputs = ({
+  author,
+  message,
+  isExpanded,
+  toggleExpand,
+  handleSubmit,
+  handleKeyPress,
+  onAuthorChange,
+  onMessageChange,
+}: MessageInputsProps) => (
+  <Stack padding="24px 16px">
+    <Stack
+      direction="row"
+      justifyContent="space-between"
+      onClick={toggleExpand}
+    >
+      <Stack direction="row" gap="16px">
+        <ChatBubbleOutline
+          sx={{ color: MAIN.PINK, cursor: 'pointer', fontSize: '2rem' }}
+        />
+        <Typography
+          sx={{ fontWeight: 600, fontSize: '1.15rem', color: MAIN.BLUE }}
+        >
+          Envie uma mensagem!
+        </Typography>
+      </Stack>
+      <ChevronRight
+        sx={{
+          color: MAIN.PINK,
+          cursor: 'pointer',
+          fontSize: '2rem',
+          justifySelf: 'end',
+          rotate: isExpanded ? '90deg' : '270deg',
+        }}
+      />
+    </Stack>
+    {isExpanded && (
+      <Stack padding="16px 0" gap="16px">
+        <TextField
+          variant="outlined"
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          color="none"
+          label="Digite o seu nome (opcional):"
+          value={author}
+          onChange={(e) => {
+            onAuthorChange(e.target.value);
+          }}
+        />
+        <TextField
+          variant="outlined"
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          color="none"
+          label="Digite aqui sua mensagem:"
+          value={message}
+          onChange={(e) => {
+            onMessageChange(e.target.value);
+          }}
+          onKeyPress={handleKeyPress}
+        />
+        <Stack
+          direction="row"
+          spacing={4}
+          marginTop={3}
+          justifyContent="flex-end"
+        >
+          <Button
+            onClick={handleSubmit}
+            title="Enviar"
+            variant="pink"
+            disabled={!message}
+          />
+        </Stack>
+      </Stack>
+    )}
+  </Stack>
+);
 
 export { MessageInput };

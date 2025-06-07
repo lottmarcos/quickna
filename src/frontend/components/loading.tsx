@@ -2,8 +2,12 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
 import { Stack, CircularProgress } from '@mui/material';
+import { MAIN } from 'src/constants/colors';
 
-const Loading = () => {
+type LoadingProps = {
+  isExternalLoading?: boolean;
+};
+const Loading = ({ isExternalLoading }: LoadingProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,11 +26,11 @@ const Loading = () => {
     };
   }, [router]);
 
-  if (!isLoading) return null;
+  if (!isLoading && !isExternalLoading) return null;
 
   return (
     <Stack alignItems="center" justifyContent="center" height="400px">
-      <CircularProgress />
+      <CircularProgress sx={{ color: MAIN.PURPLE }} />
     </Stack>
   );
 };

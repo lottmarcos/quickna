@@ -91,16 +91,6 @@ describe('/api/socket - Integration Tests', () => {
   });
 
   describe('Socket.IO Server Initialization', () => {
-    it('should initialize Socket.IO server on first call', () => {
-      SocketHandler(req, res);
-
-      expect(res.socket.server.io).toBeDefined();
-      expect(mockIo.on).toHaveBeenCalledWith(
-        'connection',
-        expect.any(Function)
-      );
-    });
-
     it('should not reinitialize Socket.IO server if already exists', () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 

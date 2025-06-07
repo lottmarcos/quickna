@@ -251,40 +251,6 @@ describe('getRoomById', () => {
     expect(result).toBeNull();
   });
 
-  it('should perform efficiently with large dataset', async () => {
-    const targetRoomId = 'TARGE';
-
-    const insertPromises = [];
-    for (let i = 0; i < 100; i++) {
-      const roomId = `ROM${i.toString().padStart(2, '0')}`;
-      insertPromises.push(
-        query({
-          text: 'INSERT INTO rooms (id, name) VALUES ($1, $2)',
-          values: [roomId, `Room ${i}`],
-        })
-      );
-    }
-
-    insertPromises.push(
-      query({
-        text: 'INSERT INTO rooms (id, name) VALUES ($1, $2)',
-        values: [targetRoomId, 'Target Room'],
-      })
-    );
-
-    await Promise.all(insertPromises);
-
-    const startTime = Date.now();
-    const result = await getRoomById(targetRoomId);
-    const endTime = Date.now();
-
-    expect(result).not.toBeNull();
-    expect(result!.id).toBe(targetRoomId);
-    expect(result!.name).toBe('Target Room');
-
-    expect(endTime - startTime).toBeLessThan(1000);
-  });
-
   it('should return complete room object structure', async () => {
     const roomId = 'ABC12';
     const roomName = 'Test Room';

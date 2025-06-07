@@ -1,13 +1,44 @@
-import React from 'react';
-
+import { Person2Outlined } from '@mui/icons-material';
+import { Stack, Typography } from '@mui/material';
+import { styled } from '@mui/system';
+import { BACKGROUND, MAIN } from 'src/constants/colors';
 import { SavedMessage } from 'src/constants/types';
 
-interface MessageListProps {
+type MessageListProps = {
   messages: SavedMessage[];
-  isLoading?: boolean;
-}
+};
 
-const MessageList = ({ messages, isLoading }: MessageListProps) => {
+const MessageList = ({ messages }: MessageListProps) => {
+  if (messages.length === 0) {
+    return (
+      <Card marginTop="16px">
+        <Typography
+          fontSize="0.85rem"
+          fontWeight={600}
+          width="100%"
+          textAlign="center"
+          color={MAIN.BLUE}
+        >
+          Seja o primeiro a mandar uma mensagem!
+        </Typography>
+        <Typography textAlign="center">😄 💬</Typography>
+      </Card>
+    );
+  }
+
+  return (
+    <ScrollableContainer marginTop="16px">
+      {messages.map((message) => (
+        <Message key={message.id} message={message} />
+      ))}
+    </ScrollableContainer>
+  );
+};
+
+type MessageProps = {
+  message: SavedMessage;
+};
+const Message = ({ message }: MessageProps) => {
   const formatTime = (date: Date | string) => {
     const messageDate = new Date(date);
     return messageDate.toLocaleTimeString([], {
@@ -16,45 +47,63 @@ const MessageList = ({ messages, isLoading }: MessageListProps) => {
     });
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-gray-500">Loading messages...</div>
-      </div>
-    );
-  }
-
-  if (messages.length === 0) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-gray-500">
-          No messages yet. Start the conversation!
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-      {messages.map((message) => (
-        <div key={message.id} className="flex flex-col">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-semibold text-sm text-gray-700">
-              {message.author || 'Anonymous'}
-            </span>
-            <span className="text-xs text-gray-500">
-              {formatTime(message.createdAt)}
-            </span>
-          </div>
-          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
-            <p className="text-gray-800 whitespace-pre-wrap">
-              {message.content}
-            </p>
-          </div>
-        </div>
-      ))}
-    </div>
+    <Card>
+      <Stack direction="row" justifyContent="space-between">
+        <Stack direction="row" gap="8px">
+          <Person2Outlined sx={{ color: MAIN.PINK }} />
+          <Typography fontWeight={600} color={MAIN.BLUE}>
+            {message.author || 'Anônimo'}
+          </Typography>
+        </Stack>
+        <Typography fontSize="0.85rem" fontWeight={600} color={MAIN.GRAY}>
+          {formatTime(message.createdAt)}
+        </Typography>
+      </Stack>
+      <Typography
+        sx={{
+          marginTop: '16px',
+          borderRadius: '8px',
+          padding: '4px 8px',
+          border: `1px solid ${MAIN.PURPLE}`,
+          backgroundColor: BACKGROUND.BLUE,
+          fontSize: '0.95rem',
+        }}
+      >
+        {message.content}
+      </Typography>
+    </Card>
   );
 };
+
+const Card = styled(Stack)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  padding: '16px',
+  borderRadius: '8px',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+  marginBottom: '16px',
+  width: '100%',
+}));
+
+const ScrollableContainer = styled(Stack)({
+  maxHeight: 'calc(100vh - 200px)',
+  borderRadius: '8px',
+  overflowY: 'auto',
+  paddingRight: '8px',
+  '&::-webkit-scrollbar': {
+    width: '6px',
+  },
+  '&::-webkit-scrollbar-track': {
+    background: '#f1f1f1',
+    borderRadius: '3px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: MAIN.BLUE,
+    borderRadius: '3px',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    background: MAIN.BLUE,
+  },
+});
 
 export { MessageList };

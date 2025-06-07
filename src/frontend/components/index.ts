@@ -1,9 +1,9 @@
 import { Button } from './button';
-import { ConnectionStatus } from './connection-status';
 import { CreateRoomModal } from './create-room-modal';
 import { Loading } from './loading';
 import { MessageInput } from './message-input';
 import { MessageList } from './message-list';
+import { ShareRoomModal } from './share-room-modal';
 
 export {
   Loading,
@@ -11,5 +11,5 @@ export {
   CreateRoomModal,
   MessageInput,
   MessageList,
-  ConnectionStatus,
+  ShareRoomModal,
 };
