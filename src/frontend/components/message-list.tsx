@@ -1,14 +1,29 @@
+import { useMemo } from 'react';
+
 import { Person2Outlined } from '@mui/icons-material';
 import { Stack, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import { BACKGROUND, MAIN } from 'src/constants/colors';
 import { SavedMessage } from 'src/constants/types';
 
+import { useIsMobileUser } from '../hooks';
+
 type MessageListProps = {
   messages: SavedMessage[];
+  isInputExpanded: boolean;
 };
 
-const MessageList = ({ messages }: MessageListProps) => {
+const MessageList = ({ messages, isInputExpanded }: MessageListProps) => {
+  const isMobileUser = useIsMobileUser();
+
+  const maxHeight = useMemo(() => {
+    if (isMobileUser) {
+      return isInputExpanded ? 'calc(100vh - 422px)' : 'calc(100vh - 190px)';
+    }
+
+    return isInputExpanded ? 'calc(100vh - 453px)' : 'calc(100vh - 220px)';
+  }, [isMobileUser, isInputExpanded]);
+
   if (messages.length === 0) {
     return (
       <Card marginTop="16px">
@@ -27,7 +42,7 @@ const MessageList = ({ messages }: MessageListProps) => {
   }
 
   return (
-    <ScrollableContainer marginTop="16px">
+    <ScrollableContainer marginTop="16px" height={maxHeight}>
       {messages.map((message) => (
         <Message key={message.id} message={message} />
       ))}
@@ -86,7 +101,7 @@ const Card = styled(Stack)(({ theme }) => ({
 }));
 
 const ScrollableContainer = styled(Stack)({
-  maxHeight: 'calc(100vh - 200px)',
+  transition: 'height 0.3s ease-in-out',
   borderRadius: '8px',
   overflowY: 'auto',
   paddingRight: '8px',

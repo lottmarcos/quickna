@@ -12,6 +12,7 @@ import {
   MessageList,
   ShareRoomModal,
 } from '../components';
+import { useIsMobileUser } from '../hooks';
 
 export type RoomProps = {
   isLoading?: boolean;
@@ -29,7 +30,9 @@ const Room = ({
   sendMessage,
 }: RoomProps) => {
   const router = useRouter();
+  const isMobileUser = useIsMobileUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInputExpanded, setIsInputExpanded] = useState(true);
 
   if (isLoading || !roomName)
     return (
@@ -51,7 +54,7 @@ const Room = ({
       sx={{
         height: '100vh',
         width: '100vw',
-        padding: '32px 15%',
+        padding: `32px ${isMobileUser ? '16px' : ' 15%'}`,
         backgroundColor: BACKGROUND.BLUE,
         justifyContent: 'space-between',
       }}
@@ -95,9 +98,13 @@ const Room = ({
             />
           </Stack>
         </Stack>
-        <MessageList messages={messages} />
+        <MessageList messages={messages} isInputExpanded={isInputExpanded} />
       </Stack>
-      <MessageInput onSendMessage={sendMessage} />
+      <MessageInput
+        onSendMessage={sendMessage}
+        isInputExpanded={isInputExpanded}
+        toggleInputExpand={() => setIsInputExpanded((prev) => !prev)}
+      />
       <ShareRoomModal
         roomId={roomId}
         isOpen={isModalOpen}
