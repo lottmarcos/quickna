@@ -13,7 +13,7 @@
     "services:stop": "docker compose -f src/integrations/compose.yaml stop",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "test": "yarn services:up && concurrently -n next,jest --hide next -k -s command-jest \"next dev\" \"jest --runInBand --verbose\"",
+    "test": "yarn services:up && concurrently -n next,jest --hide next -k -s command-jest \"next dev\" \"jest --runInBand --verbose --coverage\"",
     "test:watch": "jest --watchAll --runInBand",
     "migration:create": "node-pg-migrate -m src/integrations/migrations create",
     "migration:up": "node-pg-migrate -m src/integrations/migrations --envPath .env.development up",
