@@ -9,14 +9,19 @@ import { useIsMobileUser } from '../hooks';
 import { Button } from './button';
 
 type MessageInputProps = {
+  isInputExpanded?: boolean;
   onSendMessage: (content: string, author: string | null) => void;
+  toggleInputExpand?: () => void;
 };
 
-const MessageInput = ({ onSendMessage }: MessageInputProps) => {
+const MessageInput = ({
+  isInputExpanded,
+  onSendMessage,
+  toggleInputExpand,
+}: MessageInputProps) => {
   const isMobileUser = useIsMobileUser();
   const [author, setAuthor] = useState('');
   const [message, setMessage] = useState('');
-  const [isExpanded, setIsExpanded] = useState(true);
 
   const handleSubmit = () => {
     if (!message.trim()) return;
@@ -53,18 +58,20 @@ const MessageInput = ({ onSendMessage }: MessageInputProps) => {
             margin: '0 1px',
             maxWidth: 'calc(100vw - 2px)',
             border: `1px solid ${MAIN.BLUE}`,
+            transition: 'height 0.3s ease-in-out',
+            height: isInputExpanded ? '312px' : '80px',
           },
         }}
       >
         <MessageInputs
           author={author}
           message={message}
-          isExpanded={isExpanded}
+          isExpanded={isInputExpanded}
           handleSubmit={handleSubmit}
           handleKeyPress={handleKeyPress}
           onAuthorChange={onAuthorChange}
           onMessageChange={onMessageChange}
-          toggleExpand={() => setIsExpanded((prev) => !prev)}
+          toggleExpand={toggleInputExpand}
         />
       </Drawer>
     );
@@ -79,17 +86,19 @@ const MessageInput = ({ onSendMessage }: MessageInputProps) => {
         marginTop: '16px',
         width: '100%',
         justifySelf: 'end',
+        transition: 'height 0.3s ease-in-out',
+        height: isInputExpanded ? '312px' : '80px',
       })}
     >
       <MessageInputs
         author={author}
         message={message}
-        isExpanded={isExpanded}
+        isExpanded={isInputExpanded}
         handleSubmit={handleSubmit}
         handleKeyPress={handleKeyPress}
         onAuthorChange={onAuthorChange}
         onMessageChange={onMessageChange}
-        toggleExpand={() => setIsExpanded((prev) => !prev)}
+        toggleExpand={toggleInputExpand}
       />
     </Stack>
   );
