@@ -12,7 +12,7 @@ const fetchStatusPage = async () => {
 };
 
 const waitForWebServer = async () => {
-  return retry(fetchStatusPage, { retries: 100 });
+  return retry(fetchStatusPage, { retries: 100, maxTimeout: 1000 });
 };
 
 const waitForAllServices = async () => {
